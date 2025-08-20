@@ -1,4 +1,5 @@
 # signalTGbot
+
 1) brew install virtualenv только один раз
 2) установить https://www.sourcetreeapp.com/ и клонировать signalTGbot только один раз
 3) перейти в develop
