@@ -1,16 +1,25 @@
 import telebot
 import logging
 import os
+from pathlib import Path
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from dotenv import load_dotenv
+
+dotenv_path = Path("/app/.env")
+
+# Загружаем переменные окружения из файла .env
+load_dotenv(dotenv_path=dotenv_path)
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TOKEN = "8435688378:AAFhUGHzXRqAp4DlHXJDQHhZhYwwZSYDzX0"
-PROMOCODE = "SECRET500"
-BASEURL = "https://belex.top"
+TOKEN = os.getenv("TOKEN")
+PROMOCODE = os.getenv("PROMOCODE")
+BASEURL = os.getenv("BASEURL")
+CHANNEL_URL = os.getenv("CHANNEL_URL")
 
+# Инициализация бота
 bot = telebot.TeleBot(TOKEN)
 
 # Путь к видеофайлу в папке assets
@@ -29,14 +38,14 @@ def send_welcome(message):
     
     # Создаем клавиатуру с кнопкой
     keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton("🔥GET YOUR PROMOCODE🔥", url=f"{BASEURL}/w/?promo={PROMOCODE}"))
+    keyboard.add(InlineKeyboardButton("🔥JOIN PRIVATE CHANNEL🔥", url=f"{CHANNEL_URL}"))
     
     try:
         # Отправляем видео как анимацию (GIF) с подписью и кнопкой
         with open(VIDEO_PATH, 'rb') as gif:
             bot.send_animation(
-                message.chat.id, 
-                gif, 
+                message.chat.id,
+                gif,
                 caption=caption_text,
                 reply_markup=keyboard
             )
