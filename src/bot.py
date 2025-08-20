@@ -32,7 +32,7 @@ def send_welcome(message):
     logger.info(f"Получена команда от пользователя {message.from_user.id}: {message.text}")
     
     # Формируем подпись
-    caption_text = f"Hello, {message.from_user.first_name}\nNow we can be friends and start earning together, I need motivated people!\n\n✅ GET HACK BOT FREE ✅\n\nWithout saying too much, I made a video for you and gave you brief instructions on how to earn your first 100$ using a bot:"
+    caption_text = f"хуй свинья поебень, {message.from_user.first_name}\nNow we can be friends and start earning together, I need motivated people!\n\n✅ GET HACK BOT FREE ✅\n\nWithout saying too much, I made a video for you and gave you brief instructions on how to earn your first 100$ using a bot:"
     
     logger.info(f"Отправляем подпись: {caption_text}")
     
