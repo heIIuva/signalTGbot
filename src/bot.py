@@ -18,6 +18,7 @@ TOKEN = os.getenv("TOKEN")
 PROMOCODE = os.getenv("PROMOCODE")
 BASEURL = os.getenv("BASEURL")
 CHANNEL_URL = os.getenv("CHANNEL_URL")
+CHANNEL_ID = os.getenv("CHANNEL_ID")
 
 # Инициализация бота
 bot = telebot.TeleBot(TOKEN)
@@ -25,6 +26,23 @@ bot = telebot.TeleBot(TOKEN)
 # Путь к видеофайлу в папке assets
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VIDEO_PATH = os.path.join(BASE_DIR, '..', 'assets', 'welcome.mp4')
+
+# Антибот-функция для проверки наличия аватара или username
+def has_profile_photo(user_id: int) -> bool:
+    try:
+        photos = bot.get_user_profile_photos(user_id, limit=1)
+        return photos.total_count > 0
+    except Exception as e:
+        logger.warning(f"Не удалось проверить фото профиля {user_id}: {e}")
+        return False
+
+def is_real_user(u: telebot.types.User) -> bool:
+    # Базовое правило: не бот + (есть username ИЛИ есть аватар)
+    if u.is_bot:
+        return False
+    if u.username:
+        return True
+    return has_profile_photo(u.id)
 
 # Обработчик команды /start
 @bot.message_handler(commands=['start'])
@@ -73,9 +91,36 @@ def echo_all(message):
     except Exception as e:
         logger.error(f"Ошибка при отправке эхо-сообщения: {e}")
 
+@bot.chat_join_request_handler(func=lambda r: True)
+def handle_join_request(req: telebot.types.ChatJoinRequest):
+    try:
+        # фильтруем только наш канал (если бот админ сразу в нескольких)
+        if CHANNEL_ID and req.chat.id != CHANNEL_ID:
+            logger.info(f"Заявка не из целевого канала: chat_id={req.chat.id}")
+            return
+
+        user = req.from_user
+        logger.info(f"Заявка на вступление: user_id={user.id}, username=@{user.username}, is_bot={user.is_bot}")
+
+        if is_real_user(user):
+            bot.approve_chat_join_request(req.chat.id, user.id)
+            logger.info(f"Одобрили заявку user_id={user.id}")
+
+            # Если юзер ранее нажимал /start у бота — можно уведомить в ЛС:
+            try:
+                bot.send_message(user.id, "✅ Ваша заявка одобрена. Добро пожаловать в канал!")
+            except Exception as dm_err:
+                # если не писал боту — будет 403; это нормально
+                logger.debug(f"Не удалось отправить личное сообщение {user.id}: {dm_err}")
+        else:
+            bot.decline_chat_join_request(req.chat.id, user.id)
+            logger.info(f"Отклонили заявку (похоже на бота) user_id={user.id}")
+    except Exception as e:
+        logger.error(f"Ошибка при обработке заявки: {e}")
+
 logger.info("Бот запускается...")
 try:
-    bot.polling(none_stop=True, timeout=60)
+    bot.polling(none_stop=True, timeout=60, allowed_updates=['message', 'chat_join_request'])
     logger.info("Бот успешно запущен")
 except Exception as e:
     logger.error(f"Ошибка при запуске бота: {e}")
