@@ -50,7 +50,7 @@ def send_welcome(message):
     logger.info(f"Получена команда от пользователя {message.from_user.id}: {message.text}")
     
     # Формируем подпись
-    caption_text = f"🔥🚀 Hello, {message.from_user.first_name}\nI’m glad you made it here. Not everyone gets access to this, so consider yourself lucky.\n\n✅ WELCOME BONUS ✅\n\nI won’t reveal too much here… Inside the channel you’ll get the real details and step-by-step instructions.\n\nJoin now and unlock your bonus!\n\n👉 Join the private channel using the link below"
+    caption_text = f"🔥🚀 Hello, {message.from_user.first_name}\nI’m glad you made it here. Not everyone gets access to this, so consider yourself lucky.\n\n✅ WELCOME BONUS ✅\n\nI won’t reveal too much here… Inside the channel you’ll get the real details and step-by-step instructions.\n\nJoin now and unlock your bonus!\n\n👉 Join the private channel using the button below"
     
     logger.info(f"Отправляем подпись: {caption_text}")
     
